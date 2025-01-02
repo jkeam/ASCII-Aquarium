@@ -1,8 +1,6 @@
-#!/usr/bin/python
-
 import time
 import random
-import os
+from os import popen, system
 
 class Color:
 # ANSI Escape codes: print out code + string to have text display with specified color
@@ -147,9 +145,9 @@ def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
                 	# Fish is entering frame from the right
                 	if pos < fishLen:
                 	        endIdx = pos
-				for j in range(numColorCodes):
-					if colorIdxs[j] <= endIdx:
-						endIdx += 2
+                	        for j in range(numColorCodes):
+                	        	if colorIdxs[j] <= endIdx:
+                	        		endIdx += 2
 				# Print current line sliced to correct number of chars starting from the right
                 	        print(" " * (cols - pos - min(1, len(bubTxt))) + bubTxt + colorize(layer[:endIdx])+ Color.Reset)
                 	# In case fish is out of frame on the left
@@ -158,14 +156,13 @@ def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
                 	# Print out current line sliced to correct number of chars starting from the right
                 	# (Fish is leaving frame on left)
                 	elif pos > cols:
-				cc = ""
-				startIdx = pos - cols
-				for j in range(numColorCodes):
-					if colorIdxs[j] <= startIdx:
-						startIdx += 2
-						cc = colorCodes[j]
-                	        print(colorize(cc + layer[startIdx:]) + Color.Reset)
-                	        #print(layer[-(pos - (cols + fishLen - 1))])
+                		cc = ""
+                		startIdx = pos - cols
+                		for j in range(numColorCodes):
+                			if colorIdxs[j] <= startIdx:
+                				startIdx += 2
+                				cc = colorCodes[j]
+                		print(colorize(cc + layer[startIdx:]) + Color.Reset)
                 	# Otherwise, just print out the current line
                 	else:
                 	        print(" "*(cols - pos) + bubTxt + colorize(layer))
@@ -173,9 +170,9 @@ def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
 def printBubble(pos, depth, fishDepth, cols, pop, waveMove):
 	# Print wave
 	if waveMove:
-		print(Color.Blue + "\n\\" + "/\\"*((cols - 1) / 2) + Color.Reset)
+		print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
 	else:
-		print(Color.Blue + "\n" + "/\\"*((cols - 1) / 2) + "/" + Color.Reset)
+		print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
 	# Print blank lines between wave and bubble
 	print("\n"*(fishDepth - depth - 4)) # subtract 4 as buffer for wave
 	if pop:
@@ -187,7 +184,7 @@ def printBubble(pos, depth, fishDepth, cols, pop, waveMove):
 
 def printFloor(floor, cols, fishDepth, fishHt, rows, animate):
 	# Print blank lines above floor
-	print("\n"*(rows - fishDepth - len(floor) - fishHt - 1))
+	print("\n"* int(rows - fishDepth - len(floor) - fishHt - 1))
 	# Print each line individually (each multiple times to span across the terminal window)
 	for layer in floor:
 		if len(layer) == 0:
@@ -204,15 +201,15 @@ def printFloor(floor, cols, fishDepth, fishHt, rows, animate):
 			print(colorize(layer
 				.replace("(( ","||")
 				.replace(" ))","(( ")
-				.replace("||"," ))")) * int(num)) + (
-			colorize(layer[:layerLen])
+				.replace("||"," ))")) * int(num))
+			print(colorize(layer[:layerLen])
 				.replace("(( ","||")
 				.replace(" ))","(( ")
 				.replace("||"," ))")
 				.replace("%",""))
 		else:
-			print(colorize(layer) * int(num)) + colorize(layer[:layerLen])\
-				.replace("%","")
+			print(colorize(layer) * int(num))
+			print(colorize(layer[:layerLen].replace("%","")))
 
 def main():
 	# Read text file with fish/floor ASCII artwork
@@ -237,7 +234,7 @@ def main():
 	waveFreq = 5		# how often (in frames) waves animate
 
 	# Get dimensions of terminal window
-	rows, cols = os.popen('stty size', 'r').read().split()
+	rows, cols = popen('stty size', 'r').read().split()
 	rows = int(rows)
 	cols = int(cols)
 
@@ -264,7 +261,7 @@ def main():
 				if bubble and bubbleDepth >= 0:
 					# 5% chance to pop bubble but guaranteed above certain depth
 					bubblePopped = bubbleDepth >= 0 and \
-						(random.random() < 0.05 or 
+						(random.random() < 0.05 or
 						bubbleDepth >= fishDepth - 5)
 					printBubble(bubblePos, bubbleDepth, fishDepth, cols, bubblePopped, waveMove)
 					# Reset bubble attributes
@@ -280,9 +277,9 @@ def main():
 				# Print wave and blank lines above fish
 				else:
 					if waveMove:
-						print(Color.Blue + "\n\\" + "/\\"*((cols - 1) / 2) + Color.Reset)
+						print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
 					else:
-						print(Color.Blue + "\n" + "/\\"*((cols - 1) / 2) + "/" + Color.Reset)
+						print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
 					print("\n"*(fishDepth - 3)) #(len(fish[fishID][0]) - 2) ))
 
 				# Print bubble inline with fish
@@ -313,11 +310,11 @@ def main():
 		else:
 			# Print wave and floor
 			if waveMove:
-				print(Color.Blue + "\n\\" + "/\\"*((cols - 1) / 2) + Color.Reset)
+				print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
 			else:
-				print(Color.Blue + "\n" + "/\\"*((cols - 1) / 2) + "/" + Color.Reset)
+				print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
 			if (rows > 24):		# I don't know why this is needed
-				print("\n"*(rows / 2 + 2))
+				print("\n"*int((rows / 2 + 2)))
 			else:
 				print("\n"*(rows / 2 + 1))
 			printFloor(floor, cols, (rows / 2), 5, rows, waveMove)
@@ -337,5 +334,5 @@ if __name__ == "__main__":
 	try:
 		main()
 	except KeyboardInterrupt:
-		os.system("clear")
+		system("clear")
 		print("done")

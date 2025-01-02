@@ -323,10 +323,7 @@ def main():
 					print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
 				else:
 					print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
-			if (rows > 24):		# I don't know why this is needed
-				print("\n"*int((rows / 2 + 2)))
-			else:
-				print("\n"*(rows / 2 + 1))
+			print("\n"*int(rows / 2 + 1))
 			printFloor(floor, cols, (rows / 2), 5, rows, seaweedMove)
 			# Increase frames and adjust wave movement
 			frames += 1
@@ -336,9 +333,9 @@ def main():
 					waveMove = not waveMove
 			# Check if fish appears next frame
 			fishExists = random.random() < 0.05
-#			fishExists = True
+			# fishExists = True
 			fishID = random.randint(0, len(fish) - 1)
-#			fishID = 11
+			# fishID = 11
 			fishDepth = random.randint(4, rows - len(floor) - len(fish[fishID][0]) - 1)
 			time.sleep(pause)
 

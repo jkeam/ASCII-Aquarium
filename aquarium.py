@@ -195,25 +195,26 @@ def printFloor(floor, cols, fishDepth, fishHt, rows, seaweedMove):
 			continue
 		# Animate by swapping characters in the seaweed
 		# Also replace color placeholders (%?) with ANSI escape code
-		#layer = colorize(layer)
 		numCC = layer.count("%")
-		num = float(cols) / (len(layer) - (numCC * 2))
-		layerLen = int((num - int(num)) * (len(layer) - numCC * 2)) + numCC * 2
+		layer_norm = len(layer) - (numCC * 2)
+		num = float(cols) / layer_norm
+		int_num = int(num)
+		layerLen = int((num - int_num) * layer_norm) + numCC * 2
 		if 9 <= layerLen <= 13:
 			layerLen = 8
 		if seaweedMove:
 			print(colorize(layer
 				.replace("(( ","||")
 				.replace(" ))","(( ")
-				.replace("||"," ))")) * int(num))
-			print(colorize(layer[:layerLen])
+				.replace("||"," ))")) * int_num,
+				colorize(layer[:layerLen])
 				.replace("(( ","||")
 				.replace(" ))","(( ")
 				.replace("||"," ))")
-				.replace("%",""))
+				.replace("%","")
+			)
 		else:
-			print(colorize(layer) * int(num))
-			print(colorize(layer[:layerLen].replace("%","")))
+			print(colorize(layer) * int_num, colorize(layer[:layerLen]).replace("%",""))
 
 def main():
 	# Read text file with fish/floor ASCII artwork
@@ -223,7 +224,7 @@ def main():
 	fish, fishParams = parseFish(content)
 	floor = content[content.index("FLOOR")+len("FLOOR\n"):].split("\n")
 
-	pause = 0.1		# Time in seconds to pause between frames
+	pause = 0.15		# Time in seconds to pause between frames
 	fishID = 0		# Which fish is displayed
 	fishPos = 0		# Fish position x-axis (front of snoot)
 	fishExists = False	# Is fish in frame

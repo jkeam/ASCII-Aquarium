@@ -167,14 +167,18 @@ def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
                 	else:
                 	        print(" "*(cols - pos) + bubTxt + colorize(layer))
 
-def printBubble(pos, depth, fishDepth, cols, pop, waveMove):
+def printBubble(pos, depth, fishDepth, cols, pop, waveMove, waveDesired):
 	# Print wave
-	if waveMove:
-		print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
+	if waveDesired:
+		if waveMove:
+			print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
+		else:
+			print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
+		# Print blank lines between wave and bubble
+		print("\n"*(fishDepth - depth - 4)) # subtract 4 as buffer for wave
 	else:
-		print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
-	# Print blank lines between wave and bubble
-	print("\n"*(fishDepth - depth - 4)) # subtract 4 as buffer for wave
+		# Print blank lines between above bubble
+		print("\n"*(fishDepth - depth))
 	if pop:
 		print(" "*pos + "*"),
 	else:
@@ -182,7 +186,7 @@ def printBubble(pos, depth, fishDepth, cols, pop, waveMove):
 	# Print blank lines below bubble
 	print("\n"*(depth))
 
-def printFloor(floor, cols, fishDepth, fishHt, rows, animate):
+def printFloor(floor, cols, fishDepth, fishHt, rows, seaweedMove):
 	# Print blank lines above floor
 	print("\n"* int(rows - fishDepth - len(floor) - fishHt - 1))
 	# Print each line individually (each multiple times to span across the terminal window)
@@ -197,7 +201,7 @@ def printFloor(floor, cols, fishDepth, fishHt, rows, animate):
 		layerLen = int((num - int(num)) * (len(layer) - numCC * 2)) + numCC * 2
 		if 9 <= layerLen <= 13:
 			layerLen = 8
-		if animate:
+		if seaweedMove:
 			print(colorize(layer
 				.replace("(( ","||")
 				.replace(" ))","(( ")
@@ -230,8 +234,10 @@ def main():
 	bubblePopped = False	# Bubble pops the next frame
 	bubbleJitter = False	# Bubble "jitters", or moves side to side as it rises
 	frames = 0		# Number of elapsed frames
+	waveDesired = False  # if wave is desired
 	waveMove = False	# Wave moves side to side
 	waveFreq = 5		# how often (in frames) waves animate
+	seaweedMove = True  # if we want the seaweed to move
 
 	# Get dimensions of terminal window
 	rows, cols = popen('stty size', 'r').read().split()
@@ -263,7 +269,7 @@ def main():
 					bubblePopped = bubbleDepth >= 0 and \
 						(random.random() < 0.05 or
 						bubbleDepth >= fishDepth - 5)
-					printBubble(bubblePos, bubbleDepth, fishDepth, cols, bubblePopped, waveMove)
+					printBubble(bubblePos, bubbleDepth, fishDepth, cols, bubblePopped, waveMove, waveDesired)
 					# Reset bubble attributes
 					if bubblePopped:
 						bubble = False
@@ -271,22 +277,23 @@ def main():
 						#bubbleDepth = 0
 						bubbleJitter = False
 				elif not bubble and bubblePopped:
-					printBubble(bubblePos, bubbleDepth, fishDepth, cols, bubblePopped, waveMove)
+					printBubble(bubblePos, bubbleDepth, fishDepth, cols, bubblePopped, waveMove, waveDesired)
 					bubblePopped = False
 					bubbleDepth = 0
 				# Print wave and blank lines above fish
 				else:
-					if waveMove:
-						print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
-					else:
-						print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
+					if waveDesired:
+						if waveMove:
+							print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
+						else:
+							print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
 					print("\n"*(fishDepth - 3)) #(len(fish[fishID][0]) - 2) ))
 
 				# Print bubble inline with fish
 				printFish(fish[fishID][j], fishParams[fishID][1], fishPos, fishParams[fishID][3], cols, bubble, bubbleDepth, bubblePos)
 
 				# print blank lines and floor below fish
-				printFloor(floor, cols, fishDepth, len(fish[fishID][0]), rows, waveMove)
+				printFloor(floor, cols, fishDepth, len(fish[fishID][0]), rows, seaweedMove)
 
 				# Adjust bubble position and depth as needed
 				if bubble:
@@ -301,7 +308,9 @@ def main():
 				frames += 1
 				fishPos += 1
 				if frames % waveFreq == 0:
-					waveMove = not waveMove
+					seaweedMove = not seaweedMove
+					if waveDesired:
+						waveMove = not waveMove
 				if fishPos >= (cols + fishParams[fishID][1] - 1):	# Fish moved out of frame (17 is length of fish)
 					fishExists = False
 					fishPos = 0
@@ -309,19 +318,22 @@ def main():
 				time.sleep(pause)
 		else:
 			# Print wave and floor
-			if waveMove:
-				print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
-			else:
-				print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
+			if waveDesired:
+				if waveMove:
+					print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
+				else:
+					print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
 			if (rows > 24):		# I don't know why this is needed
 				print("\n"*int((rows / 2 + 2)))
 			else:
 				print("\n"*(rows / 2 + 1))
-			printFloor(floor, cols, (rows / 2), 5, rows, waveMove)
+			printFloor(floor, cols, (rows / 2), 5, rows, seaweedMove)
 			# Increase frames and adjust wave movement
 			frames += 1
 			if frames % waveFreq == 0:
-				waveMove = not waveMove
+				seaweedMove = not seaweedMove
+				if waveDesired:
+					waveMove = not waveMove
 			# Check if fish appears next frame
 			fishExists = random.random() < 0.05
 #			fishExists = True

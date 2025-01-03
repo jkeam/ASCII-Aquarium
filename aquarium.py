@@ -1,5 +1,5 @@
-import time
-import random
+from time import sleep
+from random import random, randint
 from os import popen, system
 
 class Color:
@@ -79,7 +79,7 @@ def colorize(str):
 
 def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
 	# Print out each line individually
-	for i,layer in enumerate(fish):
+	for i, layer in enumerate(fish):
 		bubTxt = ""
 
 		# Find all color codes in layer and the indices
@@ -95,7 +95,7 @@ def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
 			colorIdxs.append(layer.index("%", colorIdxs[-1] + 1))
 			colorCodes.append(layer[colorIdxs[-1]:colorIdxs[-1] + 2])
 
-	# ---------- FISH MOVING FROM LEFT TO RIGHT ---------- #
+		# ---------- FISH MOVING FROM LEFT TO RIGHT ---------- #
 		if dir == "R":
 			# Check if bubble needs to be printed inline with fish
 			if bubble and -(i+1) == bubbleDepth:
@@ -137,35 +137,35 @@ def printFish(fish, fishLen, pos, dir, cols, bubble, bubbleDepth, bubblePos):
 				layer = colorize(layer)
 				print(" "*(pos - fishLen) + layer + bubTxt)
 
-	# ---------- FISH MOVING FROM RIGHT TO LEFT ---------- #
+		# ---------- FISH MOVING FROM RIGHT TO LEFT ---------- #
 		elif dir == "L":
 			# Check if bubble needs to be printed inline with fish
-                	if bubble and -(i+1) == bubbleDepth:
-                	        bubTxt = Color.Reset + "o" #" " * (bubblePos - (pos - fishLen + len(layer))) + "o"
-                	# Fish is entering frame from the right
-                	if pos < fishLen:
-                	        endIdx = pos
-                	        for j in range(numColorCodes):
-                	        	if colorIdxs[j] <= endIdx:
-                	        		endIdx += 2
+			if bubble and -(i+1) == bubbleDepth:
+				bubTxt = Color.Reset + "o" #" " * (bubblePos - (pos - fishLen + len(layer))) + "o"
+			# Fish is entering frame from the right
+			if pos < fishLen:
+				endIdx = pos
+				for j in range(numColorCodes):
+					if colorIdxs[j] <= endIdx:
+						endIdx += 2
 				# Print current line sliced to correct number of chars starting from the right
-                	        print(" " * (cols - pos - min(1, len(bubTxt))) + bubTxt + colorize(layer[:endIdx])+ Color.Reset)
-                	# In case fish is out of frame on the left
-                	elif pos >= cols + fishLen:
-                	        print("")
-                	# Print out current line sliced to correct number of chars starting from the right
-                	# (Fish is leaving frame on left)
-                	elif pos > cols:
-                		cc = ""
-                		startIdx = pos - cols
-                		for j in range(numColorCodes):
-                			if colorIdxs[j] <= startIdx:
-                				startIdx += 2
-                				cc = colorCodes[j]
-                		print(colorize(cc + layer[startIdx:]) + Color.Reset)
-                	# Otherwise, just print out the current line
-                	else:
-                	        print(" "*(cols - pos) + bubTxt + colorize(layer))
+				print(" " * (cols - pos - min(1, len(bubTxt))) + bubTxt + colorize(layer[:endIdx])+ Color.Reset)
+			# In case fish is out of frame on the left
+			elif pos >= cols + fishLen:
+			  print("")
+			# Print out current line sliced to correct number of chars starting from the right
+			# (Fish is leaving frame on left)
+			elif pos > cols:
+				cc = ""
+				startIdx = pos - cols
+				for j in range(numColorCodes):
+					if colorIdxs[j] <= startIdx:
+						startIdx += 2
+						cc = colorCodes[j]
+				print(colorize(cc + layer[startIdx:]) + Color.Reset)
+			# Otherwise, just print out the current line
+			else:
+			  print(" "*(cols - pos) + bubTxt + colorize(layer))
 
 def printBubble(pos, depth, fishDepth, cols, pop, waveMove, waveDesired):
 	# Print wave
@@ -224,7 +224,7 @@ def main():
 	fish, fishParams = parseFish(content)
 	floor = content[content.index("FLOOR")+len("FLOOR\n"):].split("\n")
 
-	pause = 0.15		# Time in seconds to pause between frames
+	pause = 0.10		# Time in seconds to pause between frames
 	fishID = 0		# Which fish is displayed
 	fishPos = 0		# Fish position x-axis (front of snoot)
 	fishExists = False	# Is fish in frame
@@ -258,7 +258,7 @@ def main():
 			for j in fishParams[fishID][5]:		# stage order from fishParams
 				# Determine if bubble is produced this "frame"
 				if fishParams[fishID][4] == "T" and not bubble and fishPos < cols - 1:
-					bubble = (random.random() < 0.05)
+					bubble = (random() < 0.05)
 					if bubble:
 						if fishParams[fishID][3] == "R":
 							bubblePos = fishPos
@@ -268,7 +268,7 @@ def main():
 				if bubble and bubbleDepth >= 0:
 					# 5% chance to pop bubble but guaranteed above certain depth
 					bubblePopped = bubbleDepth >= 0 and \
-						(random.random() < 0.05 or
+						(random() < 0.05 or
 						bubbleDepth >= fishDepth - 5)
 					printBubble(bubblePos, bubbleDepth, fishDepth, cols, bubblePopped, waveMove, waveDesired)
 					# Reset bubble attributes
@@ -316,7 +316,7 @@ def main():
 					fishExists = False
 					fishPos = 0
 					break
-				time.sleep(pause)
+				sleep(pause)
 		else:
 			# Print wave and floor
 			if waveDesired:
@@ -333,12 +333,12 @@ def main():
 				if waveDesired:
 					waveMove = not waveMove
 			# Check if fish appears next frame
-			fishExists = random.random() < 0.05
+			fishExists = random() < 0.05
 			# fishExists = True
-			fishID = random.randint(0, len(fish) - 1)
+			fishID = randint(0, len(fish) - 1)
 			# fishID = 11
-			fishDepth = random.randint(4, rows - len(floor) - len(fish[fishID][0]) - 1)
-			time.sleep(pause)
+			fishDepth = randint(4, rows - len(floor) - len(fish[fishID][0]) - 1)
+			sleep(pause)
 
 if __name__ == "__main__":
 	try:

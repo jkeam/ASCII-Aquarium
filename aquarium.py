@@ -324,7 +324,7 @@ def main():
 					print(Color.Blue + "\n\\" + "/\\"*(int((cols - 1) / 2)) + Color.Reset)
 				else:
 					print(Color.Blue + "\n" + "/\\"*(int((cols - 1) / 2)) + "/" + Color.Reset)
-			print("\n"*int(rows / 2 + 1))
+			print("\n"*int(rows / 2 + 2))
 			printFloor(floor, cols, (rows / 2), 5, rows, seaweedMove)
 			# Increase frames and adjust wave movement
 			frames += 1
